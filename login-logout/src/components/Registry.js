@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   faCheck,
   faTimes,
@@ -15,6 +16,7 @@ function Registry() {
   const emailInput = useRef();
   const mobileNumberInput = useRef();
   const errorInput = useRef();
+  const navigate = useNavigate();
 
   const [user, setUser] = useState("");
   const [validUser, setValidUser] = useState(false);
@@ -61,37 +63,27 @@ function Registry() {
       setErrorMessage("Invalid Entry");
       return;
     }
+    const head = new Headers();
+    head.append("Content-Type", "application/json");
 
-    try {
-      const response = await axios.post(
-        REGISTER_URL,
-        JSON.stringify({ user, email, mobileNumber }),
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-      console.log(response?.data);
-      console.log(response?.accessToken);
-      console.log(JSON.stringify(response));
-      setSuccess(true);
-      //clear state and controlled inputs
-      //need value attrib on inputs for this
-      setUser("");
-      setEmail("");
-      setMobileNumber("");
-    } catch (err) {
-      if (!err?.response) {
-        setErrorMessage("No Server Response");
-      } else if (err.response?.status === 409) {
-        setErrorMessage("Username Taken");
-      } else {
-        setErrorMessage("Registration Failed");
-      }
-      errorInput.current.focus();
+    const dataToSend = {
+      user: user,
+      email: email,
+      mobileNumber: mobileNumber,
+    };
+
+    const rawData = await fetch("http://localhost:8777/login", {
+      method: "POST",
+      headers: head,
+      body: JSON.stringify(dataToSend),
+    });
+    const convertedData = await rawData.json();
+    if (convertedData.user === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/home");
     }
   };
-
   return (
     <>
       {success ? (
