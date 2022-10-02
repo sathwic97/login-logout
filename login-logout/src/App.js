@@ -1,8 +1,12 @@
-import logo from "./logo.svg";
 import "./App.css";
+import Registry from "./components/Registry";
 
 function App() {
-    return <div className = "App" > < /div>;
+  return (
+    <main>
+      <Registry />
+    </main>
+  );
 }
 
 export default App;
